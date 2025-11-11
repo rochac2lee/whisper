@@ -2,11 +2,12 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PHP 8.2](https://img.shields.io/badge/php-8.2-blue.svg)](https://www.php.net/)
-[![Laravel 11](https://img.shields.io/badge/laravel-11-red.svg)](https://laravel.com/)
+[![Laravel 12](https://img.shields.io/badge/laravel-12-red.svg)](https://laravel.com/)
 [![Vue 3](https://img.shields.io/badge/vue-3-green.svg)](https://vuejs.org/)
 [![Inertia.js](https://img.shields.io/badge/inertia.js-enabled-purple.svg)](https://inertiajs.com/)
+[![Vuetify 3](https://img.shields.io/badge/vuetify-3.10-blue.svg)](https://vuetifyjs.com/)
 
-Plataforma para coleta de manifestações anônimas (elogios, sugestões, reclamações, denúncias) criada para fomentar um ambiente de trabalho transparente e colaborativo.
+Plataforma para coleta de mensagens anônimas (elogios, sugestões, reclamações, denúncias) criada para fomentar um ambiente de trabalho transparente e colaborativo.
 
 ## Índice
 
@@ -45,18 +46,18 @@ Plataforma para coleta de manifestações anônimas (elogios, sugestões, reclam
 
 ## Arquitetura e Tecnologias
 
-| Camada       | Tecnologia                 | Propósito                                    |
-| ------------ | -------------------------- | -------------------------------------------- |
-| Backend      | Laravel 11 (PHP 8.2)       | API REST e camada de serviço                 |
-| Frontend     | Vue 3 + Inertia.js         | Interface reativa single-page                |
-| Build        | Vite                       | Empacotamento e hot reload                   |
-| Banco local  | SQLite                     | Persistência simples durante desenvolvimento |
-| Estilo       | Tailwind CSS               | Estilização utilitária                       |
-| Autenticação | Laravel Breeze customizado | Login seguro, proteção CSRF                  |
+| Camada       | Tecnologia                | Propósito                                        |
+| ------------ | ------------------------- | ------------------------------------------------ |
+| Backend      | Laravel 12 (PHP 8.2)      | API REST e camada de serviço                     |
+| Frontend     | Vue 3 + Inertia.js        | Interface reativa single-page                    |
+| Build        | Vite                      | Empacotamento e hot reload                       |
+| Banco local  | SQLite                    | Persistência simples durante desenvolvimento     |
+| Estilo       | Tailwind CSS + Vuetify    | Componentes visuais prontos e utilitários        |
+| Autenticação | Laravel Auth + middleware | Login restrito a administradores e troca inicial |
 
 ## Fluxo da Aplicação
 
-1. **Usuário público** acessa a tela `Enviar Manifestação`, escolhe o tipo, descreve o fato e pode anexar arquivos.
+1. **Usuário público** acessa a tela `Fale com a Gente`, escolhe o tipo, descreve o fato e pode anexar arquivos.
 2. **Sistema** armazena a mensagem, associando tipo, anexos e carimbo de data/hora sem vincular identidade.
 3. **Administrador** autenticado acessa o painel, visualiza as mensagens, filtra e consulta detalhes completos.
 4. **Equipe responsável** registra tratativas externas (fora do sistema) e atualiza indicadores internos.
@@ -88,8 +89,8 @@ php artisan migrate --seed
 
 Os seeders criam:
 
--   Tipos padrão de mensagens (`elogio`, `sugestão`, `reclamação`, `denúncia`).
--   Usuário administrador inicial `admin@example.com` (senha `password`, exige troca).
+-   Tipos padrão de mensagens (`Sugestão`, `Dúvida`, `Reclamação`, `Ideia`, `Elogio`).
+-   Usuário administrador inicial `admin@whisper.com.br` (senha `admin123`, exige troca).
 
 ### Execução dos Servidores
 
@@ -98,7 +99,7 @@ php artisan serve          # API e painel em http://localhost:8000
 npm run dev                # Build frontend com hot reload
 ```
 
-Configure serviços adicionais (e-mail, armazenamento S3, cache Redis) editando `.env`.
+Configure serviços adicionais (e-mail transacional, armazenamento S3, cache Redis) editando `.env`.
 
 ## Execução com Docker
 
@@ -115,12 +116,10 @@ docker system prune -a --volumes -f
 
 ## Testes e Garantia de Qualidade
 
--   Testes automatizados: `php artisan test`
--   Linters e estática (quando configurados):
-    -   `./vendor/bin/phpcs`
-    -   `./vendor/bin/phpstan analyse`
-    -   `npm run lint`
--   Execute antes de enviar Pull Requests ou releases.
+-   Testes automatizados Laravel: `php artisan test`
+-   Formatação backend: `./vendor/bin/pint`
+-   Build de produção frontend: `npm run build`
+-   Execute os comandos acima antes de enviar Pull Requests ou fazer deploy.
 
 ## Estrutura do Projeto
 
