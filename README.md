@@ -1,120 +1,168 @@
 # Sistema de Mensagens Anônimas Internas
 
-Este repositório contém uma aplicação Laravel destinada a receber sugestões, elogios, denúncias e demais manifestações de forma anônima, permitindo que colaboradores contribuam para a melhoria contínua da empresa.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![PHP 8.2](https://img.shields.io/badge/php-8.2-blue.svg)](https://www.php.net/)
+[![Laravel 11](https://img.shields.io/badge/laravel-11-red.svg)](https://laravel.com/)
+[![Vue 3](https://img.shields.io/badge/vue-3-green.svg)](https://vuejs.org/)
+[![Inertia.js](https://img.shields.io/badge/inertia.js-enabled-purple.svg)](https://inertiajs.com/)
 
-## Sumário
+Plataforma para coleta de manifestações anônimas (elogios, sugestões, reclamações, denúncias) criada para fomentar um ambiente de trabalho transparente e colaborativo.
 
--   Visão geral
--   Principais funcionalidades
--   Arquitetura e tecnologias
--   Requisitos
--   Guia de execução
--   Uso via Docker
--   Testes
--   Estrutura de dados
--   Convenções de desenvolvimento
--   Como contribuir
--   Suporte e contato
--   Licença
+## Índice
 
-## Visão geral
+-   [Contexto](#contexto)
+-   [Principais Recursos](#principais-recursos)
+-   [Arquitetura e Tecnologias](#arquitetura-e-tecnologias)
+-   [Fluxo da Aplicação](#fluxo-da-aplicação)
+-   [Requisitos](#requisitos)
+-   [Configurando o Ambiente](#configurando-o-ambiente)
+    -   [Instalação Local](#instalação-local)
+    -   [Configuração do Banco](#configuração-do-banco)
+    -   [Execução dos Servidores](#execução-dos-servidores)
+-   [Execução com Docker](#execução-com-docker)
+-   [Testes e Garantia de Qualidade](#testes-e-garantia-de-qualidade)
+-   [Estrutura do Projeto](#estrutura-do-projeto)
+-   [Boas Práticas de Desenvolvimento](#boas-práticas-de-desenvolvimento)
+-   [Como Contribuir](#como-contribuir)
+-   [Perguntas Frequentes](#perguntas-frequentes)
+-   [Suporte](#suporte)
+-   [Licença](#licença)
 
--   **Objetivo**: facilitar a comunicação anônima entre colaboradores e a área responsável pelas manifestações internas.
--   **Público-alvo**: equipes de RH, compliance e lideranças que precisam centralizar feedbacks e acompanhar indicadores.
--   **Benefícios**: anonimato garantido, categorização das mensagens, painel administrativo para acompanhamento e resposta.
+## Contexto
 
-## Principais funcionalidades
+-   **Problema**: colaboradores raramente expõem feedbacks sensíveis por receio de represálias.
+-   **Solução**: canal anônimo centralizado com painel administrativo seguro.
+-   **Benefícios**: estímulo a melhoria contínua, indicadores de clima organizacional e rastreabilidade das ações internas.
 
--   Envio de mensagens anônimas com anexos opcionais.
--   Seleção do tipo de mensagem (elogio, sugestão, reclamação, etc.).
--   Interface pública simplificada e responsiva.
--   Painel administrativo com autenticação, listagem e detalhamento das mensagens recebidas.
--   Gestão de usuários e tipos de mensagem por meio da área administrativa.
--   Notificações visuais para facilitar o acompanhamento de novas mensagens.
+## Principais Recursos
 
-## Arquitetura e tecnologias
+-   Envio anônimo de mensagens com suporte a anexos.
+-   Classificação por tipo (`elogio`, `sugestão`, `reclamação`, `denúncia`, personalizáveis).
+-   Painel administrativo autenticado com filtros, paginação e detalhamento das mensagens.
+-   Gestão de usuários e tipos de mensagem.
+-   Fluxo de primeiro acesso com troca obrigatória de senha.
+-   Notificações visuais e feedback instantâneo ao usuário público.
 
--   **Backend**: Laravel 11 (PHP 8.2) com Eloquent ORM.
--   **Frontend**: Vue 3 + Inertia.js + Vite.
--   **Banco de dados**: SQLite (ambiente local) — compatível com MySQL/PostgreSQL em produção.
--   **Estilização**: Tailwind CSS (via Vite) e componentes Vue personalizados.
--   **Autenticação**: padrão Laravel com proteção CSRF e middleware de administração.
+## Arquitetura e Tecnologias
+
+| Camada       | Tecnologia                 | Propósito                                    |
+| ------------ | -------------------------- | -------------------------------------------- |
+| Backend      | Laravel 11 (PHP 8.2)       | API REST e camada de serviço                 |
+| Frontend     | Vue 3 + Inertia.js         | Interface reativa single-page                |
+| Build        | Vite                       | Empacotamento e hot reload                   |
+| Banco local  | SQLite                     | Persistência simples durante desenvolvimento |
+| Estilo       | Tailwind CSS               | Estilização utilitária                       |
+| Autenticação | Laravel Breeze customizado | Login seguro, proteção CSRF                  |
+
+## Fluxo da Aplicação
+
+1. **Usuário público** acessa a tela `Enviar Manifestação`, escolhe o tipo, descreve o fato e pode anexar arquivos.
+2. **Sistema** armazena a mensagem, associando tipo, anexos e carimbo de data/hora sem vincular identidade.
+3. **Administrador** autenticado acessa o painel, visualiza as mensagens, filtra e consulta detalhes completos.
+4. **Equipe responsável** registra tratativas externas (fora do sistema) e atualiza indicadores internos.
 
 ## Requisitos
 
--   PHP 8.2+ com extensões `sqlite3`, `openssl`, `mbstring`, `pdo`.
+-   PHP 8.2+ com extensões `pdo`, `pdo_sqlite`, `mbstring`, `openssl`, `json`.
 -   Composer 2.x.
 -   Node.js 20+ e npm.
--   SQLite (ou outro SGDB suportado pelo Laravel).
--   Opcional: Docker Engine e Docker Compose v2.
+-   SQLite 3.39+ (ou driver compatível em produção).
+-   Docker Engine + Docker Compose (opcional).
 
-## Guia de execução
+## Configurando o Ambiente
 
-1. **Configuração inicial**
-    ```bash
-    cp .env.example .env
-    composer install
-    npm install
-    php artisan key:generate
-    ```
-2. **Banco de dados e dados iniciais**
-    ```bash
-    php artisan migrate --seed
-    ```
-3. **Servidores de aplicação**
-    ```bash
-    php artisan serve      # backend em http://localhost:8000
-    npm run dev            # assets front-end com hot reload
-    ```
-4. **Credenciais padrão**
-    - Usuário administrador gerado pelo seeder: `admin@example.com`
-    - Senha inicial: `password` (exigirá troca no primeiro acesso)
-
-Personalize as variáveis no arquivo `.env` conforme necessário (configuração de e-mail, armazenamento de arquivos, driver de cache etc.).
-
-## Uso via Docker
+### Instalação Local
 
 ```bash
-docker compose up -d
+cp .env.example .env
+composer install
+npm install
+php artisan key:generate
 ```
 
-Após finalizar a sessão de desenvolvimento, encerre os serviços e limpe os recursos:
+### Configuração do Banco
+
+```bash
+php artisan migrate --seed
+```
+
+Os seeders criam:
+
+-   Tipos padrão de mensagens (`elogio`, `sugestão`, `reclamação`, `denúncia`).
+-   Usuário administrador inicial `admin@example.com` (senha `password`, exige troca).
+
+### Execução dos Servidores
+
+```bash
+php artisan serve          # API e painel em http://localhost:8000
+npm run dev                # Build frontend com hot reload
+```
+
+Configure serviços adicionais (e-mail, armazenamento S3, cache Redis) editando `.env`.
+
+## Execução com Docker
+
+```bash
+docker compose up -d --build
+```
+
+Para encerrar e limpar o ambiente:
 
 ```bash
 docker compose down
 docker system prune -a --volumes -f
 ```
 
-## Testes
+## Testes e Garantia de Qualidade
 
--   Testes backend: `php artisan test`
--   Testes front-end (quando configurados): `npm run test`
--   Verificação estática opcional: `./vendor/bin/phpstan analyse`
+-   Testes automatizados: `php artisan test`
+-   Linters e estática (quando configurados):
+    -   `./vendor/bin/phpcs`
+    -   `./vendor/bin/phpstan analyse`
+    -   `npm run lint`
+-   Execute antes de enviar Pull Requests ou releases.
 
-## Estrutura de dados
+## Estrutura do Projeto
 
--   `messages`: armazena cada manifestação anônima, linkando opcionalmente arquivos anexos.
--   `message_types`: tipificação das mensagens (elogio, sugestão, denúncia etc.).
--   `users`: usuários autenticados e administradores do painel.
+```
+app/Http/Controllers       # Controladores REST do Laravel
+app/Models                 # Modelos Eloquent (Message, MessageType, User)
+database/migrations        # Esquema do banco de dados
+database/seeders           # Dados iniciais (usuários, tipos)
+resources/js               # SPA em Vue 3 + Inertia.js
+resources/views            # Layout Blade principal
+public/                    # Assets públicos e ponto de entrada
+tests/                     # Testes de unidade e integração
+```
 
-## Convenções de desenvolvimento
+## Boas Práticas de Desenvolvimento
 
--   Padronize commits usando o formato `tipo: descrição`.
--   Utilize `phpcs` e `eslint` (quando configurados) antes de submeter alterações.
--   Prefira Pull Requests pequenos e com descrição objetiva.
+-   Utilize commits seguindo Conventional Commits (`feat:`, `fix:`, `chore:`).
+-   Abra PRs pequenos, com descrição objetiva e checklist de testes executados.
+-   Respeite `phpcs`/`eslint` e ajuste formatação antes de solicitar revisão.
+-   Nunca inclua dados sensíveis em commits (`.env`, dumps de banco).
 
-## Como contribuir
+## Como Contribuir
 
--   Abra uma issue descrevendo a proposta.
--   Crie uma branch: `git checkout -b feature/nome-da-feature`.
--   Envie os commits e abra um Pull Request detalhando mudanças e testes realizados.
+1. Abra uma issue relatando bug ou sugerindo melhoria.
+2. Faça fork e crie uma branch: `git checkout -b feature/minha-feature`.
+3. Implemente e documente as alterações.
+4. Execute testes e linters.
+5. Envie PR descrevendo o contexto, mudanças, impactos e passos de validação.
 
-## Suporte e contato
+## Perguntas Frequentes
 
--   Responsável: Equipe de TI / RH.
--   E-mail: `contato@example.com`.
--   Alternative: abra uma issue pública no repositório.
+-   **As mensagens são realmente anônimas?** Sim. Não há associação com usuário autenticado ou IP armazenado por padrão.
+-   **É possível adicionar novos tipos de mensagens?** Sim. Admins podem gerenciar os tipos pelo painel.
+-   **Posso integrar com outros canais (e-mail, Slack)?** Configure jobs/listeners no Laravel para disparar notificações conforme necessidade.
+-   **O sistema suporta bancos relacionais diferentes?** Sim. Ajuste o driver e credenciais no `.env` para MySQL, PostgreSQL etc.
+
+## Suporte
+
+-   Equipe responsável: TI / RH Corporativo.
+-   Contato: `contato@example.com`.
+-   Alternativa: abra uma issue nas ferramentas internas ou neste repositório.
 
 ## Licença
 
-Distribuído sob a licença MIT. Consulte o arquivo `LICENSE` para mais detalhes.
+Disponibilizado sob licença MIT. Consulte `LICENSE` para detalhes.
