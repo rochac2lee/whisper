@@ -1,0 +1,67 @@
+services:
+  whisper-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: whisper-backend
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - vendor:/var/www/vendor
+      - ./.docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    command: ["/bin/sh", "-c", "composer install --prefer-dist --no-interaction --no-progress && apache2-foreground"]
+    ports:
+      - "8000:80"
+    networks:
+      - whisper-network
+    depends_on:
+      - whisper-database
+
+  whisper-database:
+    image: mysql:8.0
+    container_name: whisper-database
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: whisper
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: whisper
+      MYSQL_PASSWORD: whisper
+    ports:
+      - "3376:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - whisper-network
+
+  whisper-frontend:
+    image: node:20-alpine
+    container_name: whisper-frontend
+    depends_on:
+      - whisper-backend
+    volumes:
+      - ./:/var/www
+      - node_modules:/var/www/node_modules
+      - vendor:/var/www/vendor:ro
+    ports:
+      - "5173:5173"
+    working_dir: /var/www
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      [
+        "npm install --legacy-peer-deps && chmod -R 755 ./node_modules && npm run dev -- --host 0.0.0.0",
+      ]
+    networks:
+      - whisper-network
+
+networks:
+  whisper-network:
+    driver: bridge
+
+volumes:
+  dbdata:
+    driver: local
+  node_modules:
+    driver: local
+  vendor:
+    driver: local
