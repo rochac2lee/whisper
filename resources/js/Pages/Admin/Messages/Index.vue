@@ -665,10 +665,6 @@ watch([filterType, filterRead], () => {
     padding-left: 16px;
 }
 
-.message-card__actions {
-    margin-left: auto;
-}
-
 @media (min-width: 960px) {
     .message-card__content {
         flex-direction: row;
