@@ -11,12 +11,15 @@
                 @click="drawer = !drawer"
                 color="primary"
             ></v-app-bar-nav-icon>
-            <v-toolbar-title>
-                <img
-                    src="/images/logo.png"
-                    alt="Whisper"
-                    style="height: 24px"
-                />
+            <v-toolbar-title class="d-flex align-center">
+                <template v-if="logoUrl">
+                    <img
+                        :src="logoUrl"
+                        :alt="displayName"
+                        style="height: 24px"
+                    />
+                </template>
+                <span v-else class="logo-placeholder">{{ displayName }}</span>
             </v-toolbar-title>
         </v-app-bar>
 
@@ -34,11 +37,16 @@
                 style="height: 60px"
                 v-if="$vuetify.display.mdAndUp"
             >
-                <img
-                    src="/images/logo.png"
-                    alt="Whisper"
-                    style="max-width: 160px; height: auto"
-                />
+                <template v-if="logoUrl">
+                    <img
+                        :src="logoUrl"
+                        :alt="displayName"
+                        style="max-width: 160px; height: auto"
+                    />
+                </template>
+                <div v-else class="logo-placeholder logo-placeholder--drawer">
+                    {{ displayName }}
+                </div>
             </div>
 
             <v-divider></v-divider>
@@ -74,6 +82,15 @@
                         rounded="lg"
                         class="mb-1 text-text"
                         @click="navigate('admin.users.index')"
+                    ></v-list-item>
+
+                    <v-list-item
+                        prepend-icon="fi fi-br-settings"
+                        title="Configurações"
+                        :active="isActive('admin.settings.*')"
+                        rounded="lg"
+                        class="mb-1 text-text"
+                        @click="navigate('admin.settings.index')"
                     ></v-list-item>
                 </v-list>
             </div>
@@ -176,6 +193,10 @@ import ChangePasswordDialog from "@/Components/dialogs/ChangePasswordDialog.vue"
 
 // Estado do drawer (inicia aberto em desktop, fechado em mobile)
 const display = useDisplay();
+const page = usePage();
+const branding = computed(() => page.props.branding ?? {});
+const logoUrl = computed(() => branding.value?.logo_url || null);
+const displayName = computed(() => branding.value?.display_name || "Whisper");
 const drawer = ref(display.mdAndUp.value);
 
 watch(
@@ -187,7 +208,6 @@ watch(
 );
 
 // Estado dos snackbars
-const page = usePage();
 const authUser = computed(() => page.props.auth?.user ?? null);
 const showPasswordDialog = ref(false);
 const showSuccess = ref(false);
@@ -280,5 +300,19 @@ const handlePasswordDialogSuccess = () => {
 .fade-enter-from,
 .fade-leave-to {
     opacity: 0;
+}
+
+.logo-placeholder {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgb(var(--v-theme-primary));
+    letter-spacing: 0.3px;
+}
+
+.logo-placeholder--drawer {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 </style>
