@@ -6,11 +6,16 @@
                     <v-col cols="12" sm="8" md="6" lg="4">
                         <!-- Logo -->
                         <div class="text-center mb-8">
-                            <img
-                                src="/images/logo.png"
-                                alt="Whisper"
-                                style="max-width: 180px; margin: 0 auto"
-                            />
+                            <template v-if="logoUrl">
+                                <img
+                                    :src="logoUrl"
+                                    :alt="displayName"
+                                    class="auth-logo"
+                                />
+                            </template>
+                            <div v-else class="auth-logo-placeholder">
+                                {{ displayName }}
+                            </div>
                         </div>
 
                         <!-- Card de Login -->
@@ -104,8 +109,8 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { useForm } from "@inertiajs/vue3";
+import { computed, ref } from "vue";
+import { useForm, usePage } from "@inertiajs/vue3";
 
 // Estado do formulário
 const form = useForm({
@@ -117,6 +122,10 @@ const form = useForm({
 const errors = ref({});
 const loading = ref(false);
 const showPassword = ref(false);
+const page = usePage();
+const branding = computed(() => page.props.branding ?? {});
+const logoUrl = computed(() => branding.value?.logo_url || null);
+const displayName = computed(() => branding.value?.display_name || "Whisper");
 
 // Submeter formulário
 const submit = () => {
@@ -135,5 +144,22 @@ const submit = () => {
 </script>
 
 <style scoped>
-/* Estilos adicionais se necessário */
+.auth-logo {
+    max-width: 180px;
+    margin: 0 auto;
+}
+
+.auth-logo-placeholder {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 180px;
+    height: 60px;
+    margin: 0 auto;
+    border-radius: 12px;
+    background-color: rgba(var(--v-theme-primary), 0.12);
+    color: rgb(var(--v-theme-primary));
+    font-weight: 600;
+    letter-spacing: 0.4px;
+}
 </style>
