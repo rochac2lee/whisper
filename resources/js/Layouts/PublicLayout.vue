@@ -13,16 +13,21 @@
                 class="toolbar-container"
             >
                 <!-- Logo (posição absoluta esquerda) -->
-                <div class="toolbar-logo">
+                <div class="toolbar-logo" v-if="logoUrl">
                     <img
-                        src="/images/logo.png"
-                        alt="Whisper"
+                        :src="logoUrl"
+                        :alt="displayName"
                         :style="
                             $vuetify.display.mobile
                                 ? 'height: 28px; width: auto; object-fit: contain;'
                                 : 'height: 36px; width: auto; object-fit: contain;'
                         "
                     />
+                </div>
+                <div class="toolbar-logo toolbar-logo--placeholder" v-else>
+                    <span class="toolbar-logo__placeholder">{{
+                        displayName
+                    }}</span>
                 </div>
 
                 <!-- Título Centralizado -->
@@ -101,11 +106,14 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { usePage } from "@inertiajs/vue3";
 import ToastDialog from "@/Components/dialogs/ToastDialog.vue";
 
 const page = usePage();
+const branding = computed(() => page.props.branding ?? {});
+const logoUrl = computed(() => branding.value?.logo_url || null);
+const displayName = computed(() => branding.value?.display_name || "Whisper");
 const showSuccess = ref(false);
 const showError = ref(false);
 const successMessage = ref("");
@@ -150,6 +158,15 @@ watch(
     left: 24px;
     top: 50%;
     transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+}
+
+.toolbar-logo__placeholder {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgb(var(--v-theme-primary));
+    letter-spacing: 0.3px;
 }
 
 .toolbar-title {
@@ -170,6 +187,10 @@ watch(
 @media (max-width: 600px) {
     .toolbar-logo {
         left: 16px;
+    }
+
+    .toolbar-logo__placeholder {
+        font-size: 16px;
     }
 
     .toolbar-actions {
